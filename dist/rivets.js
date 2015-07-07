@@ -55,7 +55,7 @@
         return view;
       },
       init: function(component, el, data) {
-        var scope, view;
+        var scope, template, view;
         if (data == null) {
           data = {};
         }
@@ -63,7 +63,15 @@
           el = document.createElement('div');
         }
         component = Rivets["public"].components[component];
-        el.innerHTML = component.template.call(this, el);
+        template = component.template.call(this, el);
+        if (template instanceof HTMLElement) {
+          while (el.firstChild) {
+            el.removeChild(el.firstChild);
+          }
+          el.appendChild(template);
+        } else {
+          el.innerHTML = template;
+        }
         scope = component.initialize.call(this, el, data);
         view = new Rivets.View(el, scope);
         view.bind();
@@ -114,13 +122,14 @@
         };
       })(),
       getInputValue: function(el) {
-        var o, _i, _len, _results;
+        var o, _i, _len, _ref1, _results;
         if (el.type === 'checkbox') {
           return el.checked;
         } else if (el.type === 'select-multiple') {
+          _ref1 = el.children;
           _results = [];
-          for (_i = 0, _len = el.length; _i < _len; _i++) {
-            o = el[_i];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            o = _ref1[_i];
             if (o.selected) {
               _results.push(o.value);
             }
@@ -998,7 +1007,7 @@
       }
     },
     routine: function(el, value) {
-      var o, _i, _len, _ref1, _ref2, _ref3, _results;
+      var o, _i, _len, _ref1, _ref2, _ref3, _ref4, _results;
       if (el.tagName === 'INPUT' && el.type === 'radio') {
         return el.setAttribute('value', value);
       } else if (window.jQuery != null) {
@@ -1009,14 +1018,15 @@
       } else {
         if (el.type === 'select-multiple') {
           if (value != null) {
+            _ref2 = el.children;
             _results = [];
-            for (_i = 0, _len = el.length; _i < _len; _i++) {
-              o = el[_i];
-              _results.push(o.selected = (_ref2 = o.value, __indexOf.call(value, _ref2) >= 0));
+            for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+              o = _ref2[_i];
+              _results.push(o.selected = (_ref3 = o.value, __indexOf.call(value, _ref3) >= 0));
             }
             return _results;
           }
-        } else if ((value != null ? value.toString() : void 0) !== ((_ref3 = el.value) != null ? _ref3.toString() : void 0)) {
+        } else if ((value != null ? value.toString() : void 0) !== ((_ref4 = el.value) != null ? _ref4.toString() : void 0)) {
           return el.value = value != null ? value : '';
         }
       }
